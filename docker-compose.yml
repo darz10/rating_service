@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  rating-service:
+    build: .
+    container_name: rating_app_service
+    restart: always
+    command: bash run-server.sh
+    ports:
+      - 8001:8001
+    depends_on:
+      - db
+    links:
+      - "db:db"
+    networks:
+      - rating_network
+
+  db:
+    restart: always
+    container_name: rating_db
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_PASSWORD=${DBPASSWORD}
+      - POSTGRES_USER=${DBUSER}
+      - POSTGRES_DB=${DB}
+    ports:
+      - "5432"
+    networks:
+      - rating_network
+
+volumes:
+  pgdata:
+
+networks:
+  rating_network:
+    driver: bridge
+
+
